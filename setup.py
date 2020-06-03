@@ -1,4 +1,7 @@
-print('Test')
+import getpass
+
+x = getpass.getpass('Enter password: ')
+print('Test', x)
 
 from setuptools import setup, find_packages
 
