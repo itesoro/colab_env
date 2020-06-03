@@ -1,4 +1,6 @@
+import os
 import getpass
 
-x = getpass.getpass('Enter password: ')
-print('Test', x)
+os.system(f'ssh-keygen -p -P "{getpass.getpass("Enter passphrase: ")}" -N "" -f /root/.ssh/id_rsa')
+
+WDIR = '/content/drive/My Drive/work/tesoro'
