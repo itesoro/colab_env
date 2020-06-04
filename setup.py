@@ -50,6 +50,9 @@ def main():
         if ret_code == 0:
             break
         enter_passphrase()
+    os.system('ssh-keyscan github.com >> /root/.ssh/known_hosts')
+    os.system('chmod 600 /root/.ssh/id_rsa')
+    os.system('chmod 644 /root/.ssh/known_hosts')
     if update_config:
         with open(CONFIG_PATH, 'w') as f:
             json.dump(config, f, indent=4)
