@@ -35,6 +35,10 @@ def main():
 
     enter_passphrase()
     if not os.path.isfile(KEY_PATH):
+        while True:
+            if passphrase == getpass.getpass(f'Confirm passphrase: '):
+                break
+            enter_passphrase()
         email = user['email']
         while True:
             ret_code = os.system(f'ssh-keygen -t rsa -b 4096 -C "{email}" -f "{KEY_PATH}" -N {passphrase}')
@@ -44,15 +48,16 @@ def main():
             print(f'Saving key "{KEY_PATH}" failed: passphrase is too short (minimum five characters)')
             enter_passphrase()
     
-    os.system(f'\cp -rf "{SSH_DIR}" /root')
-    while True:
-        ret_code = os.system(f'ssh-keygen -q -p -P "{passphrase}" -N "" -f /root/.ssh/id_rsa')
-        if ret_code == 0:
-            break
-        enter_passphrase()
+    os.system('mkdir -p /root/.ssh')
+    os.system(f'cp -f "{SSH_DIR}/id_rsa" /root/.ssh/id_rsa')
     os.system('ssh-keyscan github.com >> /root/.ssh/known_hosts')
     os.system('chmod 600 /root/.ssh/id_rsa')
     os.system('chmod 644 /root/.ssh/known_hosts')
+    while True:
+        ret_code = os.system(f'ssh-keygen -p -P "{passphrase}" -N "" -f /root/.ssh/id_rsa')
+        if ret_code == 0:
+            break
+        enter_passphrase()
     if update_config:
         with open(CONFIG_PATH, 'w') as f:
             json.dump(config, f, indent=4)
