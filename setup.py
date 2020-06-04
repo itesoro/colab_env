@@ -57,7 +57,6 @@ def main():
         ret_code = os.system(f'ssh-keygen -p -P "{passphrase}" -N "" -f /root/.ssh/id_rsa')
         if ret_code == 0:
             break
-        print(ret_code)
         enter_passphrase()
     if update_config:
         with open(CONFIG_PATH, 'w') as f:
