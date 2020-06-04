@@ -43,7 +43,7 @@ def main():
         while True:
             ret_code = os.system(f'ssh-keygen -t rsa -b 4096 -C "{email}" -f "{KEY_PATH}" -N {passphrase}')
             if ret_code == 0:
-                print(f'Successfully saved keys to "{SSH_DIR}"')
+                print(f'Saved keys to "{SSH_DIR}"')
                 break
             assert ret_code == 256, f'{ret_code}'
             print(f'Saving key "{KEY_PATH}" failed: passphrase is too short (minimum five characters)')
