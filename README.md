@@ -2,7 +2,7 @@
 
 1. Create colab notebook.
 2. Mount Drive in files sidebar.
-3. Add and run cell:
+3. Run the following cell:
     ```python
     !curl -LOs https://github.com/itesoro/colab_env/raw/master/setup.py 
     %run setup.py
