@@ -7,7 +7,7 @@ def main():
     import getpass
     import shutil
     ENV_DIR = os.path.join(WORK_DIR, 'env')
-    SSH_DIR = os.path.join(ENV_DIR, '.ssh')
+    SSH_DIR = os.path.join(ENV_DIR, 'ssh')
     CONFIG_PATH = os.path.join(ENV_DIR, 'config.json')
     KEY_PATH = os.path.join(SSH_DIR, 'id_rsa')
     os.makedirs(SSH_DIR, exist_ok=True)
