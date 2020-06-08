@@ -42,7 +42,7 @@ def main():
             print('Passphrase is too short (minimum five characters)')
 
     enter_passphrase()
-    while not os.path.isfile(KEY_PATH)::
+    while not os.path.isfile(KEY_PATH):
         if passphrase == getpass.getpass(f'Confirm passphrase: '):
             ret_code = os.system(f'ssh-keygen -t rsa -b 4096 -C "{user_email}" -f "{KEY_PATH}" -N {passphrase}')
             if ret_code == 0:
