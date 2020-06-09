@@ -13,6 +13,7 @@ def main():
     KEY_PATH = config['SSH_KEY_PATH']
     DST_KEY_PATH = '/root/.ssh/id_rsa'
     SSH_DIR = os.path.dirname(KEY_PATH)
+    DST_SSH_DIR = os.path.dirname(DST_KEY_PATH)
     os.system(f'git config --global user.name "{USER_NAME}"')
     os.system(f'git config --global user.email "{USER_EMAIL}"')
     
@@ -37,11 +38,11 @@ def main():
                     break
             enter_passphrase()
         
-        os.system('mkdir -p /root/.ssh')
+        os.system(f'mkdir -p "{DST_SSH_DIR}"')
         os.system(f'cp -f "{SSH_DIR}/id_rsa" "{DST_KEY_PATH}"')
-        os.system('ssh-keyscan github.com >> /root/.ssh/known_hosts')
-        os.system('chmod 600 /root/.ssh/id_rsa')
-        os.system('chmod 644 /root/.ssh/known_hosts')
+        os.system(f'chmod 600 "{DST_KEY_PATH}"')
+        os.system(f'ssh-keyscan github.com >> "{DST_SSH_DIR}/known_hosts"')
+        os.system(f'chmod 644 "{DST_SSH_DIR}/known_hosts"')
 
         while True:
             ret_code = os.system(f'ssh-keygen -p -P "{passphrase}" -N "" -f "{DST_KEY_PATH}"')
