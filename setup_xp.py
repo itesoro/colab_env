@@ -38,7 +38,7 @@ def main():
             enter_passphrase()
         
         os.system('mkdir -p /root/.ssh')
-        os.system(f'cp -f "{SSH_DIR}/id_rsa" /root/.ssh/id_rsa')
+        os.system(f'cp -f "{SSH_DIR}/id_rsa" "{DST_KEY_PATH}"')
         os.system('ssh-keyscan github.com >> /root/.ssh/known_hosts')
         os.system('chmod 600 /root/.ssh/id_rsa')
         os.system('chmod 644 /root/.ssh/known_hosts')
