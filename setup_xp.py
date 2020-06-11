@@ -3,6 +3,7 @@ def main():
     import sys
     import getpass
     import shutil
+    from IPython.display import clear_output
     sys.argv = sys.argv[1:]
     MY_DRIVE_DIR = '/content/drive/My Drive'
     config = {'MY_DRIVE_DIR': MY_DRIVE_DIR}
@@ -35,6 +36,7 @@ def main():
                 ret_code = os.system(f'ssh-keygen -t rsa -b 4096 -C "{USER_EMAIL}" -f "{KEY_PATH}" -N {passphrase}')
                 if ret_code == 0:
                     print(f'Saved keys to "{SSH_DIR}"')
+                    clear_output = lambda: None
                     break
             enter_passphrase()
         
@@ -53,6 +55,7 @@ def main():
     globals_ = globals()
     for k in config.get('export', []):
         globals_[k] = config[k]
+    clear_output()
 
 main()
 del main
