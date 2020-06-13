@@ -1,3 +1,6 @@
+from IPython.core.magic import register_line_magic
+
+
 def main():
     import os
     import sys
@@ -57,5 +60,24 @@ def main():
         globals_[k] = config[k]
     clear_output()
 
+
+@register_line_magic
+def pip_install_editable(url):
+    import os, sys
+    name, git_ext = os.path.splitext(os.path.basename(url))
+    assert git_ext == '.git'
+    path = os.path.abspath(name)
+    print(path)
+    if not os.path.isdir(path):
+        ok = True
+        ok = ok and (os.system(f'git clone "{url}" "{path}"') == 0)
+        ok = ok and (os.system(f'pip install -e "{path}"') == 0)
+        if ok:
+            sys.path.append(path)
+            print(f'Successfully installed {name}')
+        else:
+            print(f"Can't install {name}")
+
+
 main()
-del main
+del main, pip_install_editable, register_line_magic
