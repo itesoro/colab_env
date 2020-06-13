@@ -67,7 +67,6 @@ def pip_install_editable(url):
     name, git_ext = os.path.splitext(os.path.basename(url))
     assert git_ext == '.git'
     path = os.path.abspath(name)
-    print(path)
     if not os.path.isdir(path):
         ok = True
         ok = ok and (os.system(f'git clone "{url}" "{path}"') == 0)
