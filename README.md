@@ -1,8 +1,8 @@
 # Usage
 
 1. Create colab notebook.
-1. Make `work/env/config.py` on your Google Drive by analogy with `config_example.py`.
 1. Mount Drive in files sidebar.
+1. Make `work/env/config.py` on your Google Drive by analogy with `config_example.py`.
 1. Run the following code in your notebook:
     ```python
     !curl -LOs https://github.com/itesoro/colab_env/raw/master/setup.py 
