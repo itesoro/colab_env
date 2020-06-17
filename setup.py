@@ -7,24 +7,6 @@ def main():
     import getpass
     import shutil
     from IPython.display import clear_output
-
-    DRIVE_DIR = '/content/drive'
-    HIDDEN_DRIVE_DIR = '/content/.drive'
-
-    def hide_drive_mount_point():
-        nonlocal DRIVE_DIR, HIDDEN_DRIVE_DIR
-        if DRIVE_DIR == HIDDEN_DRIVE_DIR:
-            return
-        ok = True
-        if not os.path.isdir(HIDDEN_DRIVE_DIR):
-            ok = ok and os.system(f'mkdir -p "{HIDDEN_DRIVE_DIR}"') == 0
-            ok = ok and os.system(f'mount --move "{DRIVE_DIR}" "{HIDDEN_DRIVE_DIR}"') == 0
-            if ok:
-                ok = os.system(f'rmdir "{DRIVE_DIR}"') == 0
-            else:
-                ok = os.system(f'rmdir "{HIDDEN_DRIVE_DIR}"') == 0
-        if ok:
-            DRIVE_DIR = HIDDEN_DRIVE_DIR
     
     def link(path):
         new_path = f'/content/{os.path.basename(path)}'
@@ -34,9 +16,8 @@ def main():
             return new_path
         return path
 
-    hide_drive_mount_point()
     sys.argv = sys.argv[1:]
-    MY_DRIVE_DIR = f'{DRIVE_DIR}/My Drive'
+    MY_DRIVE_DIR = f'/content/drive/My Drive'
     config = {'MY_DRIVE_DIR': MY_DRIVE_DIR, 'link': link}
     config_path = os.path.join(MY_DRIVE_DIR, sys.argv[0])
     exec(open(config_path).read(), config)
