@@ -5,8 +5,7 @@
 3. Run the following cell:
     ```python
     !curl -LOs https://github.com/itesoro/colab_env/raw/master/setup.py 
-    %run setup.py
-    %cd {WORK_DIR}
+    %run setup work/env/config.py
     ```
     
 If running the first time add public key to your github account.
