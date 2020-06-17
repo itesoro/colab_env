@@ -1,4 +1,4 @@
-# Usage
+# Setup
 
 1. Create colab notebook.
 1. Mount Drive in files sidebar.
@@ -9,7 +9,7 @@
     %run setup work/env/config.py
     ```
     
-If running the first time, script will generate ssh keys. Add public key to your github account.
+At the first run, script will generate ssh keys at `SSH_KEY_PATH` specified in `config.py`. Add public key to your github account.
 
 To install python packages from private repository run the following line in your notebook:
 ```python
