@@ -11,7 +11,7 @@
     
 If running the first time, script will generate ssh keys. Add public key to your github account.
 
-To install python packages from private repository run the following line in your notebook
+To install python packages from private repository run the following line in your notebook:
 ```python
 !pip install git+ssh://git@github.com/itesoro/<repository-name>.git
 ```
