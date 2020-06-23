@@ -71,15 +71,23 @@ def main():
 
 
 @register_line_magic
-def pip_install_editable(url):
+def pip_install_editable(args):
     import os, sys
+    args = args.split()
+    url = args[0]
+    branch = None
+    for i in range(1, len(args) - 1):
+        if args[i] == '-b' or args[i] == '--branch':
+            branch = args[i + 1]
     name, git_ext = os.path.splitext(os.path.basename(url))
     assert git_ext == '.git'
     path = os.path.abspath(name)
     if not os.path.isdir(path):
         ok = True
         ok = ok and (os.system(f'git clone "{url}" "{path}"') == 0)
-        ok = ok and (os.system(f'pip install -e "{path}"') == 0)
+        if branch:
+            ok = ok and (os.system(f'cd "{path}" && git checkout {branch}'))
+        ok = ok and (os.system(f'pip install "{path}"') == 0)
         if ok:
             sys.path.append(path)
             print(f'Successfully installed {name}')
