@@ -82,17 +82,30 @@ def pip_install_editable(args):
     name, git_ext = os.path.splitext(os.path.basename(url))
     assert git_ext == '.git'
     path = os.path.abspath(name)
-    if not os.path.isdir(path):
-        ok = True
-        ok = ok and (os.system(f'git clone "{url}" "{path}"') == 0)
-        if branch:
-            ok = ok and (os.system(f'cd "{path}" && git checkout {branch}'))
-        ok = ok and (os.system(f'pip install "{path}"') == 0)
-        if ok:
-            sys.path.append(path)
-            print(f'Successfully installed {name}')
-        else:
-            print(f"Can't install {name}")
+    if os.path.isdir(path):
+        return
+    ok = True
+
+    def shell(cmd):
+        nonlocal ok
+        if not ok:
+            return
+        ret_code = os.system(cmd)
+        if ret_code != 0:
+            print(f'{cmd} returned {ret_code}', file=sys.stderr)
+            ok = False
+
+    shell(f'git clone "{url}" "{path}"')
+    if branch:
+        shell(f'cd "{path}" && git checkout {branch}')
+    shell(f'pip install "{path}"')
+    shell(f'pip install "{path}"')
+    if ok:
+        sys.path.append(path)
+        print(f'Successfully installed {name}')
+    else:
+        os.system(f'rm -rf "{path}"')
+        print(f"Can't install {name}", file=sys.stderr)
 
 
 main()
