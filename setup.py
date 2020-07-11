@@ -98,8 +98,7 @@ def pip_install_editable(args):
     shell(f'git clone "{url}" "{path}"')
     if branch:
         shell(f'cd "{path}" && git checkout {branch}')
-    shell(f'pip install "{path}"')
-    shell(f'pip install "{path}"')
+    shell(f'pip install -e "{path}"')
     if ok:
         sys.path.append(path)
         print(f'Successfully installed {name}')
