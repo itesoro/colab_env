@@ -71,7 +71,6 @@ def main():
         child = pexpect.spawn(f'ssh-add {DST_KEY_PATH}')
         while True:
             index = child.expect(['Enter passphrase for .*:', 'Bad passphrase, try again for .*:', pexpect.EOF, pexpect.TIMEOUT])
-            print(index)
             if index > 1:
                 if index == 2:
                     with open(DST_KEY_PATH + '.pub', 'wb') as f:
