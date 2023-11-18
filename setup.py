@@ -126,4 +126,4 @@ def pip_install_editable(args):
 
 
 main()
-del main, pip_install_editable, register_line_magic
+del main, pip_install_editable, register_line_magic, setup_ssh_agent
