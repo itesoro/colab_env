@@ -1,11 +1,21 @@
 from IPython.core.magic import register_line_magic
 
 
+def setup_ssh_agent():
+    import os, re, subprocess
+    env_vars = ['SSH_AUTH_SOCK', 'SSH_AGENT_PID']
+    if env_vars[0] in os.environ:
+        return
+    process = subprocess.run(['ssh-agent', '-s'], stdout=subprocess.PIPE, text=True)
+    pattern = ''.join(map(lambda k: f'.*^\s*{k}=(?P<{k}>[^;]+)', env_vars))
+    m = re.search(pattern, process.stdout, re.MULTILINE | re.DOTALL)
+    if m is None:
+        raise RuntimeError(f"Can't parse output of `ssh-agent -s`: {process.stdout}")
+    os.environ.update(m.groupdict())
+
+
 def main():
-    import os
-    import sys
-    import getpass
-    import shutil
+    import os, sys, getpass, shutil, pexpect
     from IPython.display import clear_output
     
     def link(path):
@@ -39,8 +49,7 @@ def main():
             if len(passphrase) >= 5:
                 return
             print('Passphrase is too short (minimum five characters)')
-
-    if not os.path.isfile(DST_KEY_PATH):
+    if not os.path.isfile(DST_KEY_PATH + '.pub'):
         enter_passphrase()
         while not os.path.isfile(KEY_PATH):
             os.makedirs(SSH_DIR, exist_ok=True)
@@ -58,11 +67,19 @@ def main():
         os.system(f'ssh-keyscan github.com >> "{DST_SSH_DIR}/known_hosts"')
         os.system(f'chmod 644 "{DST_SSH_DIR}/known_hosts"')
 
+        setup_ssh_agent()
+        child = pexpect.spawn(f'ssh-add {DST_KEY_PATH}')
         while True:
-            ret_code = os.system(f'ssh-keygen -p -P "{passphrase}" -N "" -f "{DST_KEY_PATH}"')
-            if ret_code == 0:
+            index = child.expect(['Enter passphrase for .*:', 'Bad passphrase, try again for .*:', pexpect.EOF, pexpect.TIMEOUT])
+            if index > 1:
+                if index == 2:
+                    with open(DST_KEY_PATH + '.pub', 'wb') as f:
+                        pass
                 break
-            enter_passphrase()
+            if passphrase is None:
+                enter_passphrase()
+            child.sendline(passphrase)
+            passphrase = None
 
     globals_ = globals()
     for k in config.get('export', []):
@@ -108,4 +125,4 @@ def pip_install_editable(args):
 
 
 main()
-del main, pip_install_editable, register_line_magic
+del main, pip_install_editable, register_line_magic, setup_ssh_agent
