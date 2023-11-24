@@ -124,5 +124,63 @@ def pip_install_editable(args):
         print(f"Can't install {name}", file=sys.stderr)
 
 
+class ignore_import_errors:
+    """
+    A context manager to suppress import errors for specified packages.
+
+    Replaces failed imports from the specified packages with dummy objects,
+    allowing the program to continue running.
+
+    Parameters
+    ----------
+    packages : iterable
+        Names of packages for which import errors are to be ignored.
+
+    Examples
+    --------
+    >>> with ignore_import_errors(packages=('nonexistent_module', 'another_nonexistent')):
+    ...     import nonexistent_module
+    ...     from another_nonexistent import some_function
+    ...     # ImportErrors for the specified modules are ignored.
+    ...     # The code within the block continues to execute.
+
+    Notes
+    -----
+    Use this context manager to handle optional dependencies or to gracefully
+    degrade functionality when certain imports are unavailable.
+    """
+
+    def __init__(self, *, packages):
+        import builtins
+        self.__builtins = builtins
+        self.packages = set(packages)
+
+    def __enter__(self):
+        self.__real_import = self.__builtins.__import__
+        self.__builtins.__import__ = self.__import
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.__builtins.__import__ = self.__real_import
+
+    def __import(self, name, globals={}, locals={}, fromlist=[], level=0):
+        try:
+            return self.__real_import(name, globals, locals, fromlist, level)
+        except Exception:
+            if not name.split('.')[0] in self.packages:
+                raise
+        return self._DummyObject()
+
+    class _DummyObject:
+        _instance = None
+
+        def __new__(cls):
+            if cls._instance is None:
+                cls._instance = super(ignore_import_errors._DummyObject, cls).__new__(cls)
+            return cls._instance
+
+        def __getattr__(self, name):
+            return self
+
+
 main()
 del main, pip_install_editable, register_line_magic, setup_ssh_agent
