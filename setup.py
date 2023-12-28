@@ -84,8 +84,6 @@ def main():
     globals_ = globals()
     for k in config.get('export', []):
         globals_[k] = config[k]
-    import nest_asyncio
-    nest_asyncio.apply()
     clear_output()
 
 
