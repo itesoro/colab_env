@@ -95,9 +95,12 @@ def pip_install_editable(args):
     args = args.split()
     url = args[0]
     branch = None
+    extras = ''
     for i in range(1, len(args) - 1):
         if args[i] == '-b' or args[i] == '--branch':
             branch = args[i + 1]
+        if args[i] == '-e' or args[i] == '--extras':
+            extras = f'[{args[i + 1]}]'
     name, git_ext = os.path.splitext(os.path.basename(url))
     assert git_ext == '.git'
     path = os.path.abspath(name)
@@ -117,7 +120,7 @@ def pip_install_editable(args):
     shell(f'git clone "{url}" "{path}"')
     if branch:
         shell(f'cd "{path}" && (git checkout {branch} || git checkout -b {branch})')
-    shell(f'pip install -e "{path}"')
+    shell(f'pip install -e "{path}{extras}"')
     if ok:
         sys.path.append(path)
         print(f'Successfully installed {name}')
