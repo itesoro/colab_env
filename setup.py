@@ -15,30 +15,34 @@ def setup_ssh_agent():
 
 
 def main():
-    import os, sys, getpass, shutil, pexpect
+    import os, sys, json, getpass, shutil, pexpect
+    from google.colab import userdata
     from IPython.display import clear_output
     
-    def link(path):
-        new_path = f'/content/{os.path.basename(path)}'
-        if os.path.islink(new_path):
-            return new_path
-        if os.system(f'ln -s "{path}" "{new_path}"') == 0:
-            return new_path
-        return path
-
-    sys.argv = sys.argv[1:]
-    MY_DRIVE_DIR = f'/content/drive/My Drive'
-    config = {'MY_DRIVE_DIR': MY_DRIVE_DIR, 'link': link}
-    config_path = os.path.join(MY_DRIVE_DIR, sys.argv[0])
-    exec(open(config_path).read(), config)
-    USER_NAME = config['USER_NAME']
-    USER_EMAIL = config['USER_EMAIL']
-    KEY_PATH = config['SSH_KEY_PATH']
+    for MY_DRIVE_DIR in ['/content/drive/MyDrive', '/content/drive/My Drive']:
+        if os.path.exists(MY_DRIVE_DIR):
+            break
+    globals()['MY_DRIVE_DIR'] = MY_DRIVE_DIR
+    config = userdata.get('colab_env')
+    try:
+        config = json.loads(config)
+    except Exception as e:
+        print(config)
+        print(e)
+        return
+    USER_NAME = config['user_name']
+    print(f'Hi {USER_NAME}!')
+    USER_EMAIL = config['user_email']
+    KEY_PATH = config['ssh_key_path']
     DST_KEY_PATH = '/root/.ssh/id_rsa'
     SSH_DIR = os.path.dirname(KEY_PATH)
     DST_SSH_DIR = os.path.dirname(DST_KEY_PATH)
     os.system(f'git config --global user.name "{USER_NAME}"')
     os.system(f'git config --global user.email "{USER_EMAIL}"')
+    for k, v in config.get('env', {}).items():
+        v = v.format_map(globals())
+        os.environ[k] = v
+        print(f'export {k}={v}')
 
     passphrase = None
 
@@ -49,6 +53,7 @@ def main():
             if len(passphrase) >= 5:
                 return
             print('Passphrase is too short (minimum five characters)')
+
     if not os.path.isfile(DST_KEY_PATH + '.pub'):
         enter_passphrase()
         while not os.path.isfile(KEY_PATH):
@@ -81,12 +86,31 @@ def main():
             child.sendline(passphrase)
             passphrase = None
 
-    globals_ = globals()
-    for k in config.get('export', []):
-        globals_[k] = config[k]
-    import nest_asyncio
-    nest_asyncio.apply()
     clear_output()
+
+
+@register_line_magic
+def link(args):
+    def get_path(arg):
+        arg = arg.strip()
+        try:
+            var_name, path = arg.split('=')
+            globals()[var_name] = path
+        except:
+            path = arg
+        return path
+    
+    import os
+    try:
+        src_path, dst_path = map(get_path, args.split('->'))
+    except:
+        print('Usage: %link SRC_PATH -> [VAR_NAME=]DST_PATH')
+        return
+    if os.path.islink(dst_path):
+        print(f'Link at {dst_path!r} already exists')
+        return
+    if os.system(f'ln -s "{src_path}" "{dst_path}"') != 0:
+        print(f'Failed to create a link: {src_path!r} -> {dst_path!r}')
 
 
 @register_line_magic
@@ -95,9 +119,12 @@ def pip_install_editable(args):
     args = args.split()
     url = args[0]
     branch = None
+    extras = ''
     for i in range(1, len(args) - 1):
         if args[i] == '-b' or args[i] == '--branch':
             branch = args[i + 1]
+        if args[i] == '-e' or args[i] == '--extras':
+            extras = f'[{args[i + 1]}]'
     name, git_ext = os.path.splitext(os.path.basename(url))
     assert git_ext == '.git'
     path = os.path.abspath(name)
@@ -117,7 +144,7 @@ def pip_install_editable(args):
     shell(f'git clone "{url}" "{path}"')
     if branch:
         shell(f'cd "{path}" && (git checkout {branch} || git checkout -b {branch})')
-    shell(f'pip install -e "{path}"')
+    shell(f'pip install -e "{path}{extras}"')
     if ok:
         sys.path.append(path)
         print(f'Successfully installed {name}')
