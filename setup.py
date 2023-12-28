@@ -18,13 +18,12 @@ def main():
     import os, sys, json, getpass, shutil, pexpect
     from google.colab import userdata
     from IPython.display import clear_output
-
+    
     for MY_DRIVE_DIR in ['/content/drive/MyDrive', '/content/drive/My Drive']:
         if os.path.exists(MY_DRIVE_DIR):
             break
     globals()['MY_DRIVE_DIR'] = MY_DRIVE_DIR
     config = userdata.get('colab_env')
-    print(config)
     config = json.loads(config)
     USER_NAME = config['user_name']
     print(f'Hi {USER_NAME}!')
@@ -49,6 +48,7 @@ def main():
             if len(passphrase) >= 5:
                 return
             print('Passphrase is too short (minimum five characters)')
+
     if not os.path.isfile(DST_KEY_PATH + '.pub'):
         enter_passphrase()
         while not os.path.isfile(KEY_PATH):
@@ -81,7 +81,7 @@ def main():
             child.sendline(passphrase)
             passphrase = None
 
-    # clear_output()
+    clear_output()
 
 
 @register_line_magic
