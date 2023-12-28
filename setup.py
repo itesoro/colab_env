@@ -24,7 +24,12 @@ def main():
             break
     globals()['MY_DRIVE_DIR'] = MY_DRIVE_DIR
     config = userdata.get('colab_env')
-    config = json.loads(config)
+    try:
+        config = json.loads(config)
+    except Exception as e:
+        print(config)
+        print(e)
+        return
     USER_NAME = config['user_name']
     print(f'Hi {USER_NAME}!')
     USER_EMAIL = config['user_email']
