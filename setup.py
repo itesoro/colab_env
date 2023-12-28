@@ -33,7 +33,7 @@ def main():
     USER_NAME = config['user_name']
     print(f'Hi {USER_NAME}!')
     USER_EMAIL = config['user_email']
-    KEY_PATH = config['ssh_key_path']
+    KEY_PATH = config['ssh_key_path'].format_map(globals())
     DST_KEY_PATH = '/root/.ssh/id_rsa'
     SSH_DIR = os.path.dirname(KEY_PATH)
     DST_SSH_DIR = os.path.dirname(DST_KEY_PATH)
